@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+  "name": "SaveMyEyes",
+  "version": "1.0",
+
+  "description": "Hides bad stuff",
+
+  "icons": {
+    "48": "icons/border-48.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://news.google.com/*"],
+      "js": ["savemyeyes.js"]
+    }
+  ]
+
+}
