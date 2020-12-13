@@ -5,7 +5,6 @@
      *
      * @param {function} f The function to run when document becomes ready.
      */
-
     /(?:uninitialized|loading)/.test(document.readyState) ? setTimeout(onReady, 9, f) : f()
   };
 
@@ -18,13 +17,27 @@
     return rootNode.querySelectorAll("article")
   };
 
+  const hashArticle = article => {
+    /**
+     * Calculates the hash of a google news <article>.
+     *
+     * Current hashing strategy: Use google's own redirect url.
+     *
+     * @param {HTMLElement} article The google news <article>.
+     */
+    return new URL(article.querySelector("a").href).pathname.replace(/^\/articles\//, "");
+  }
+
   const checkBlurArticle = article => {
     /**
      * Queries the sentiment of article and blurs it if bad.
      *
      * @param {HTMLElement} article <article> on google news.
      */
+
     // TODO: query server for this
+    const articleHash = hashArticle(article);
+
     let shouldBlurArticle = true;
 
     if (shouldBlurArticle) {
