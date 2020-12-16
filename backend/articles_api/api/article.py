@@ -3,26 +3,16 @@ Routes for status on articles
 """
 
 from flask_restx import Namespace, Resource, fields, reqparse, inputs
-import pika
 
 from articles_api import config
 from articles_api.helpers import serialize
+from articles_api.queue import connect_queue
 from articles_api.models import Article
 from articles_api.models.article import ArticleType
 
 api = Namespace("article", description="Manage and query articles")
 
-# pika setup for RabbitMQ
-credentials = pika.PlainCredentials(
-    config.RABBITMQ_CREDS.get("username"), config.RABBITMQ_CREDS.get("password")
-)
-conn = pika.BlockingConnection(
-    pika.ConnectionParameters(
-        host=config.RABBITMQ_HOST, port=config.RABBITMQ_PORT, credentials=credentials
-    )
-)
-channel = conn.channel()
-channel.queue_declare(config.RABBITMQ_Q)
+channel = connect_queue(config.RABBITMQ_Q)
 
 # flask restx input parameters
 class ArticleTypeConverter(fields.Raw):
