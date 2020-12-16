@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  backend:
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_DB=savemyeyes
+      - RABBITMQ_HOST=rabbitmq
+      - PYTHONUNBUFFERED=1
+    build: "backend"
+    ports:
+      - "5000:5000"
+    depends_on:
+      - "rabbitmq"
+      - "mongo"
+  rabbitmq:
+    image: "rabbitmq"
+    ports:
+      - "5672:5672"
+  mongo:
+    image: "mongo"
+    ports:
+      - "27017:27017"
