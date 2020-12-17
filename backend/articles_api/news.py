@@ -2,7 +2,7 @@ from newspaper import Article
 
 
 def calc_words(line):
-    return len(line.split())
+    return 1 + line.strip().count(" ")
 
 
 def get_score(article_hash):
