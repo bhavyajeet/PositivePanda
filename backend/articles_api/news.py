@@ -1,18 +1,20 @@
 from newspaper import Article
 
+
 def calc_words(line):
     return len(line.split())
 
+
 def get_score(article_hash):
 
-    url = 'https://news.google.com/articles/' + str(article_hash) 
+    url = "https://news.google.com/articles/" + str(article_hash)
     article = Article(url)
 
     article.download()
     article.parse()
 
     text = article.text
-    raw_lines = text.split('\n')
+    raw_lines = text.split("\n")
     lines = []
 
     # remove empty lines
@@ -23,7 +25,7 @@ def get_score(article_hash):
 
     # 1 for positive, and 0 for negative
     scores = []
-    
+
     n_words = 0
     text = ""
     i = 0
@@ -37,21 +39,24 @@ def get_score(article_hash):
             text = ""
             n_words = 0
             continue
-        
+
         if calc_words(lines[i]) > 64:
             i += 1
-            continue;
+            continue
 
-        text += lines[i]+' '
+        text += lines[i] + " "
         n_words += calc_words(lines[i])
         i += 1
 
-    if sum(scores) > len(scores)/2:
+    if sum(scores) > len(scores) / 2:
         print("The article is positive!")
         return 1
 
     print("The article is negative!")
-    return 0        
+    return 0
+
 
 if __name__ == "__main__":
-    get_score('CAIiEMPxPiGz20g0UzL4gB9zxK8qGAgEKg8IACoHCAow-8ykCjDv13cwrYPqAQ?hl=en-US&gl=US&ceid=US%3Aen')
+    get_score(
+        "CAIiEMPxPiGz20g0UzL4gB9zxK8qGAgEKg8IACoHCAow-8ykCjDv13cwrYPqAQ?hl=en-US&gl=US&ceid=US%3Aen"
+    )
