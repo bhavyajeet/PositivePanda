@@ -2,7 +2,8 @@
 Routes for status on articles
 """
 
-from flask_restx import Namespace, Resource, fields, reqparse, inputs
+from flask import request
+from flask_restx import Namespace, Resource, fields, reqparse, inputs, abort
 
 from articles_api import config
 from articles_api.helpers import serialize
@@ -36,6 +37,7 @@ article_response = api.model(
         "hash": fields.String,
         "publish_date": fields.DateTime(),
         "type": ArticleTypeConverter(attribute="type"),
+        "score": fields.Float,
     },
 )
 
@@ -79,9 +81,11 @@ class ArticleDAO(Resource):
         Set the type of article.
         Adds the article hash and result to database.
         """
-        # TODO: add auth
+        secret = request.headers.get("Authorization", "")
+        if secret != config.SECRET:
+            abort(401)
 
-        args = get_parser.parse_args()
+        args = post_parser.parse_args()
         article_hash = args["hash"]
 
         article = Article.objects(hash=article_hash).first()

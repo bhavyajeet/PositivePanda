@@ -14,3 +14,4 @@ class Article(db.Document):
     hash = db.StringField()
     publish_date = db.DateTimeField()
     type = db.EnumField(ArticleType)
+    score = db.FloatField()
