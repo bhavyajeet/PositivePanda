@@ -2,12 +2,13 @@
 Routes for status on articles
 """
 
-from flask import request
+from flask import request, jsonify
 from flask_restx import Namespace, Resource, fields, reqparse, inputs, abort
 
 from articles_api import config
 from articles_api.helpers import serialize
 from articles_api.queue import connect_queue
+from articles_api.link_preview import link_preview
 from articles_api.models import Article
 from articles_api.models.article import ArticleType
 
@@ -99,3 +100,10 @@ class ArticleDAO(Resource):
             article.save()
 
         return article
+
+
+@api.route("/info")
+class ArticleInfo(Resource):
+    def get(self):
+        url = f"https://news.google.com/articles/{request.args['hash']}"
+        return jsonify(link_preview(url))
