@@ -13,10 +13,8 @@ def get_score(article_hash):
     article.download()
     article.parse()
 
-    raw_text = article.text
-    lines = raw_text.split("\n")
-    lines = ' '.join(lines)
-    lines = lines.split('. ')
+    raw_text = article.text.replace('\n', ' ')
+    lines = raw_text.split('. ')
     lines = list(filter(bool, lines))
 
     # 1 for positive, and 0 for negative
