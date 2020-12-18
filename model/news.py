@@ -1,4 +1,60 @@
+from enum import IntEnum
+import time
+
+import requests
+import pika
+import msgpack
 from newspaper import Article
+import numpy as np
+
+from model import Model
+import config
+
+
+class ArticleType(IntEnum):
+    NOT_CLASSIFIED = 0
+    BAD = 1
+    GOOD = 2
+    ERROR = 3
+
+
+def connect_queue(queue_name, backoff_factor=2, max_retries=float("inf")):
+    """
+    pika setup for RabbitMQ
+    """
+    sleep_duration = 1
+    retries = 0
+
+    credentials = pika.PlainCredentials(
+        config.RABBITMQ_CREDS.get("username"), config.RABBITMQ_CREDS.get("password")
+    )
+
+    while retries < max_retries:
+        try:
+            conn = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                    host=config.RABBITMQ_HOST,
+                    port=config.RABBITMQ_PORT,
+                    credentials=credentials,
+                )
+            )
+        except pika.exceptions.AMQPConnectionError:
+            time.sleep(sleep_duration)
+            sleep_duration *= backoff_factor
+            retries += 1
+            print(f"Failed to connect to queue - {retries}/{max_retries} try")
+        else:
+            print("Successfully connected to queue")
+            break
+
+    channel = conn.channel()
+    channel.queue_declare(queue_name)
+
+    return channel
+
+
+classifier = Model()
+channel = connect_queue(config.RABBITMQ_Q)
 
 
 def calc_words(line):
@@ -6,49 +62,65 @@ def calc_words(line):
 
 
 def get_score(article_hash):
-
-    url = "https://news.google.com/articles/" + str(article_hash)
+    url = "https://news.google.com/articles/" + article_hash
     article = Article(url)
 
     article.download()
     article.parse()
 
-    raw_text = article.text.replace('\n', ' ')
-    lines = raw_text.split('. ')
-    lines = list(filter(bool, lines))
+    raw_text = article.text.replace("\n", " ")
+    raw_text = raw_text.replace('"', " ")
+    raw_text = raw_text.replace("'", " ")
+    lines = raw_text.split(". ")
+    lines = list(map(lambda x: x.strip(), filter(bool, lines)))
 
-    # 1 for positive, and 0 for negative
-    scores = []
+    if len(lines) == 0:
+        raise Exception("No text extracted from newspaper")
 
     n_words = 0
-    text = ""
-    i = 0
 
-    while i != len(lines):
-        if calc_words(lines[i]) + n_words > 64:
-            # scores += [model(text.strip())]
+    sentences = [""]
 
-            print(calc_words(text.strip()))
-            print(text.strip())
-            text = ""
-            n_words = 0
-            continue
+    for line in lines:
+        words = calc_words(line)
 
-        if calc_words(lines[i]) > 64:
-            i += 1
-            continue
+        if n_words + words < 64:
+            sentences[-1] += " " + line
+            n_words += words
+        else:
+            n_words = words
+            sentences.append(line)
 
-        text += lines[i].strip() + " "
-        n_words += calc_words(lines[i])
-        i += 1
-
-    if sum(scores) > len(scores) / 2:
-        print("The article is positive!")
-        return 1
-
-    print("The article is negative!")
-    return 0
+    scores = classifier.predict(sentences)
+    return np.mean(scores)
 
 
-if __name__ == "__main__":
-    get_score("CAIiEMPxPiGz20g0UzL4gB9zxK8qGAgEKg8IACoHCAow-8ykCjDv13cwrYPqAQ")
+def score_article(_ch, _method, _properties, body):
+    """
+    RabbitMQ callback
+
+    extracts hash, runs model and updates article on API
+    """
+    article_hash = msgpack.unpackb(body).get("hash")
+
+    try:
+        score = get_score(article_hash)
+        if score > config.GOOD_THRESHOLD:
+            article_type = ArticleType.GOOD
+        else:
+            article_type = ArticleType.BAD
+    except:
+        score = None
+        article_type = ArticleType.ERROR
+
+    requests.post(
+        f"{config.ARTICLES_API_HOST}/article",
+        headers={"Authorization": config.SECRET},
+        json={"hash": article_hash, "type": article_type, "score": score},
+    )
+
+
+channel.basic_consume(
+    queue=config.RABBITMQ_Q, auto_ack=True, on_message_callback=score_article
+)
+channel.start_consuming()

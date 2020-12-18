@@ -1,6 +1,8 @@
 import os
 import zipfile
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import requests
 import tensorflow as tf
 from transformers import BertTokenizer, TFBertForSequenceClassification
