@@ -23,9 +23,19 @@ var data = {
       "url": "https://ogp.me/",
       "image": "https://ogp.me/logo.png",
       "description": "The Open Graph protocol enables any web page to become a rich object in a social graph."
+    },
+    {
+      "title": "Open Graph protocol",
+      "url": "https://ogp.me/",
+      "image": "https://ogp.me/logo.png",
+      "description": "The Open Graph protocol enables any web page to become a rich object in a social graph."
     }
   ]
 };
+
+// var response = await fetch("localhost:3000/top5");
+// var data = response.json;
+
 
 var news = document.getElementById("news-articles");
 var items = data.items;

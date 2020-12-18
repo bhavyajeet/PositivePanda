@@ -59,7 +59,7 @@ def calc_words(line):
     return 1 + line.strip().count(" ")
 
 
-def get_score(article_hash):
+def get_score_and_keywords(article_hash):
     url = "https://news.google.com/articles/" + article_hash
     article = Article(url)
 
@@ -90,7 +90,7 @@ def get_score(article_hash):
             sentences.append(line)
 
     scores = classifier.predict(sentences)
-    return np.mean(scores)
+    return np.mean(scores), article.keywords[:5]
 
 
 def score_article(_ch, _method, _properties, body):
@@ -103,7 +103,7 @@ def score_article(_ch, _method, _properties, body):
     article_hash = msgpack.unpackb(body).get("hash")
 
     try:
-        score = get_score(article_hash)
+        score, keywords = get_score_and_keywords(article_hash)
         if score > config.GOOD_THRESHOLD:
             article_type = ArticleType.GOOD
         else:
@@ -117,7 +117,7 @@ def score_article(_ch, _method, _properties, body):
     requests.post(
         f"http://{config.ARTICLES_API_HOST}:{config.ARTICLES_API_PORT}/article",
         headers={"Authorization": config.SECRET},
-        json={"hash": article_hash, "kind": article_type, "score": score},
+        json={"hash": article_hash, "kind": article_type, "score": score, "keywords": keywords},
     )
 
 

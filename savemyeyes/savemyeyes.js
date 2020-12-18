@@ -28,6 +28,60 @@
     return new URL(article.querySelector("a").href).pathname.replace(/^\/articles\//, "");
   }
 
+  const modifyCl = (cl, position) => {
+    let today = new Date().toISOString().slice(0, 10);
+
+    console.log(cl);
+
+    if(cl == null){
+      c = [0, 0, 0]
+      c[position]++;
+      cl = {
+        "i": [
+          {
+            "d": today,
+            "c": c
+          }
+        ]
+      }
+    }
+    else{
+      if (cl.i.length > 0){
+        var item = cl.i[cl.i.length - 1];
+        if (item.d.localeCompare(today) == 0) {
+          item.c[position]++;
+          cl.i[cl.i.length - 1] = item;
+        }
+        else{
+          c = [0, 0, 0]
+          c[position]++;
+          cl.i.push(
+            {
+              "d": today,
+              "c": c // hbu
+            }
+          );
+        }
+      }
+      else{
+        c = [0, 0, 0]
+        c[position]++;
+        cl.i.push(
+          {
+            "d": today,
+            "c": c // hbu
+          }
+        )
+      }
+    }
+
+    browser.storage.local.set({cl});
+  }
+
+  const addTo = (position) => {
+    browser.storage.local.get("cl").then((item) => modifyCl(item, position));
+  }
+
   const checkBlurArticle = article => {
     /**
      * Queries the sentiment of article and blurs it if bad.
@@ -38,11 +92,14 @@
     // TODO: query server for this
     const articleHash = hashArticle(article);
 
-    let shouldBlurArticle = true;
+    let shouldBlurArticle = false;
 
     if (shouldBlurArticle) {
       // TODO: make blur radius configurable
       article.parentNode.style.filter = "blur(5px)";
+    }
+    else{      
+      article.onclick = addToPositive(1);
     }
   };
 
