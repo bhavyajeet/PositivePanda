@@ -1,26 +1,53 @@
 body {
     background-color: white;
+    max-width: 500px;
+    padding-bottom: 1rem;
 }
 .row {
     padding: 8px;
     display: flex;
     box-shadow: 5px 10px #888888;
-    margin: 10px;
+    margin: 12px;
     border-radius: 10px;
+    border-style: solid;
+    border-width: 2px;
 }
 .content-col {
     width: 80%;
 }
 .img-col {
     width: 20%;
-    vertical-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex
 }
 .image {
     float: right;
     vertical-align: center;
-    max-height: 5rem;
+    max-height: 6rem;
 }
 a {
     text-decoration: none;
     color: black;
+}
+.article-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.button-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+button {
+    background-color: white;
+    text-decoration: none;
+    text-align: center;
+    border: none;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 4px;
+    box-shadow: 4px 8px #6d6565;
+    margin: 1rem;
 }

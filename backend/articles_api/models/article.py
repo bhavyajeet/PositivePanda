@@ -15,3 +15,4 @@ class Article(db.Document):
     publish_date = db.DateTimeField()
     kind = db.EnumField(ArticleType)
     score = db.FloatField()
+    keywords = db.ListField(db.StringField())
