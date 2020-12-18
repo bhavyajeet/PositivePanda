@@ -10,6 +10,8 @@ import numpy as np
 from model import Model
 import config
 
+classifier = Model()
+
 
 class ArticleType(IntEnum):
     NOT_CLASSIFIED = 0
@@ -51,10 +53,6 @@ def connect_queue(queue_name, backoff_factor=2, max_retries=float("inf")):
     channel.queue_declare(queue_name)
 
     return channel
-
-
-classifier = Model()
-channel = connect_queue(config.RABBITMQ_Q)
 
 
 def calc_words(line):
@@ -101,6 +99,7 @@ def score_article(_ch, _method, _properties, body):
 
     extracts hash, runs model and updates article on API
     """
+    print("Received an article")
     article_hash = msgpack.unpackb(body).get("hash")
 
     try:
@@ -109,16 +108,20 @@ def score_article(_ch, _method, _properties, body):
             article_type = ArticleType.GOOD
         else:
             article_type = ArticleType.BAD
+        print(f"Score: {score}, type: {ArticleType(article_type).name}")
     except:
+        print("Failed to score")
         score = None
         article_type = ArticleType.ERROR
 
     requests.post(
-        f"{config.ARTICLES_API_HOST}/article",
+        f"http://{config.ARTICLES_API_HOST}:{config.ARTICLES_API_PORT}/article",
         headers={"Authorization": config.SECRET},
-        json={"hash": article_hash, "type": article_type, "score": score},
+        json={"hash": article_hash, "kind": article_type, "score": score},
     )
 
+
+channel = connect_queue(config.RABBITMQ_Q)
 
 channel.basic_consume(
     queue=config.RABBITMQ_Q, auto_ack=True, on_message_callback=score_article

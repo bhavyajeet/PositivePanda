@@ -14,6 +14,6 @@ RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", "5672"))
 
 MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
 MONGO_PORT = int(os.getenv("MONGO_PORT", "27017"))
-MONGO_DB = os.getenv("MONGO_DB", "test")
+MONGO_DB = os.getenv("MONGO_DB", "savemyeyes")
 
 SECRET = os.getenv("SECRET", "ssshhh")

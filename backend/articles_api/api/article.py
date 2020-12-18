@@ -13,8 +13,6 @@ from articles_api.models.article import ArticleType
 
 api = Namespace("article", description="Manage and query articles")
 
-channel = connect_queue(config.RABBITMQ_Q)
-
 # flask restx input parameters
 class ArticleTypeConverter(fields.Raw):
     """
@@ -36,14 +34,15 @@ article_response = api.model(
     {
         "hash": fields.String,
         "publish_date": fields.DateTime(),
-        "type": ArticleTypeConverter(attribute="type"),
+        "kind": ArticleTypeConverter(attribute="kind"),
         "score": fields.Float,
     },
 )
 
 post_parser = get_parser.copy()
 post_parser.add_argument("publish_date", type=inputs.date_from_iso8601)
-post_parser.add_argument("type", type=int, required=True)
+post_parser.add_argument("kind", type=int, required=True)
+post_parser.add_argument("score", type=float, required=True)
 
 post_inputs = api.inherit("PostArticle", article_response, {})
 
@@ -63,10 +62,11 @@ class ArticleDAO(Resource):
         article = Article.objects(hash=article_hash).first()
 
         if not article:
-            article = Article(hash=article_hash, type=ArticleType.NOT_CLASSIFIED)
+            print("Couldn't find article in DB, pushing to queue for classification")
+            article = Article(hash=article_hash, kind=ArticleType.NOT_CLASSIFIED)
             article.save()
 
-            channel.basic_publish(
+            connect_queue(config.RABBITMQ_Q).basic_publish(
                 exchange="",
                 routing_key=config.RABBITMQ_Q,
                 body=serialize({"hash": article_hash}),
@@ -86,7 +86,8 @@ class ArticleDAO(Resource):
             abort(401)
 
         args = post_parser.parse_args()
-        article_hash = args["hash"]
+        article_hash = args.pop("hash", None)
+        args.pop("publish_date", None)
 
         article = Article.objects(hash=article_hash).first()
 

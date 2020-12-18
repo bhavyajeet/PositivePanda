@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  backend:
+  articles_api:
     environment:
       - MONGO_HOST=mongo
       - MONGO_DB=savemyeyes
@@ -12,6 +12,14 @@ services:
     depends_on:
       - "rabbitmq"
       - "mongo"
+  model:
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    build: "model"
+    volumes:
+      - ./model/modelSentiment:/opt/modelSentiment
+    depends_on:
+      - "articles_api"
   rabbitmq:
     image: "rabbitmq"
     ports:
