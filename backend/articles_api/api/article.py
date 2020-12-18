@@ -104,6 +104,7 @@ class ArticleDAO(Resource):
 
 @api.route("/info")
 class ArticleInfo(Resource):
+    @api.doc(params={"hash": "Article hash"})
     def get(self):
         url = f"https://news.google.com/articles/{request.args['hash']}"
         return jsonify(link_preview(url))
