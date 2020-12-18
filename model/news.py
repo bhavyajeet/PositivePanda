@@ -15,13 +15,7 @@ def get_score(article_hash):
 
     text = article.text
     raw_lines = text.split("\n")
-    lines = []
-
-    # remove empty lines
-    for line in raw_lines:
-        if not line:
-            continue
-        lines += [line]
+    lines = list(filter(bool, raw_lines))
 
     # 1 for positive, and 0 for negative
     scores = []
@@ -29,8 +23,8 @@ def get_score(article_hash):
     n_words = 0
     text = ""
     i = 0
-    while i != len(lines):
 
+    while i != len(lines):
         if calc_words(lines[i]) + n_words > 64:
             # scores += [model(text.strip())]
 
@@ -57,6 +51,4 @@ def get_score(article_hash):
 
 
 if __name__ == "__main__":
-    get_score(
-        "CAIiEMPxPiGz20g0UzL4gB9zxK8qGAgEKg8IACoHCAow-8ykCjDv13cwrYPqAQ?hl=en-US&gl=US&ceid=US%3Aen"
-    )
+    get_score("CAIiEMPxPiGz20g0UzL4gB9zxK8qGAgEKg8IACoHCAow-8ykCjDv13cwrYPqAQ")
