@@ -1,0 +1,4 @@
+requests
+tensorflow
+transformers
+newspaper3k
