@@ -13,9 +13,11 @@ def get_score(article_hash):
     article.download()
     article.parse()
 
-    text = article.text
-    raw_lines = text.split("\n")
-    lines = list(filter(bool, raw_lines))
+    raw_text = article.text
+    lines = raw_text.split("\n")
+    lines = ' '.join(lines)
+    lines = lines.split('. ')
+    lines = list(filter(bool, lines))
 
     # 1 for positive, and 0 for negative
     scores = []
@@ -38,7 +40,7 @@ def get_score(article_hash):
             i += 1
             continue
 
-        text += lines[i] + " "
+        text += lines[i].strip() + " "
         n_words += calc_words(lines[i])
         i += 1
 
