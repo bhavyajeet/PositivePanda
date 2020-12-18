@@ -1,0 +1,26 @@
+body {
+    background-color: white;
+}
+.row {
+    padding: 8px;
+    display: flex;
+    box-shadow: 5px 10px #888888;
+    margin: 10px;
+    border-radius: 10px;
+}
+.content-col {
+    width: 80%;
+}
+.img-col {
+    width: 20%;
+    vertical-align: center;
+}
+.image {
+    float: right;
+    vertical-align: center;
+    max-height: 5rem;
+}
+a {
+    text-decoration: none;
+    color: black;
+}

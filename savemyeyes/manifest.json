@@ -6,7 +6,16 @@
   "description": "Hides bad stuff",
 
   "icons": {
-    "48": "icons/border-48.png"
+    "48": "icons/savemyeyes-48.png"
+  },
+
+  "browser_action": {
+    "browser_style": true,
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/savemyeyes-16.png",
+      "32": "icons/savemyeyes-32.png"
+    }
   },
 
   "content_scripts": [
