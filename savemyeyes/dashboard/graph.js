@@ -106,39 +106,54 @@
  .append("g")
      .attr("transform", "translate(" + Piewidth / 2 + "," + Pieheight / 2 + ")");
  // Create dummy data
- var Piedata = {a: 9, b: 20, c:30, d:8, e:12}
- // set the color scale
- var Piecolor = d3.scaleOrdinal()
- .domain(Piedata)
- .range(['red','black','yellow','blue','green','pink','cyan'])
- 
- // Compute the position of each group on the pie:
- var pie = d3.pie()
- .value(function(d) {return d.value; })
- var data_ready = pie(d3.entries(Piedata))
- // Now I know that group A goes from 0 degrees to x degrees and so on.
- // shape helper to build arcs:
- var arcGenerator = d3.arc()
- .innerRadius(0)
- .outerRadius(radius)
- // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
- Piesvg
- .selectAll('mySlices')
- .data(data_ready)
- .enter()
- .append('path')
-     .attr('d', arcGenerator)
-     .attr('fill', function(d){ return(Piecolor(d.data.key)) })
-     .attr("stroke", "black")
-     .style("stroke-width", "2px")
-     .style("opacity", 0.7)
- // Now add the annotation. Use the centroid method to get the best coordinates
- Piesvg
- .selectAll('mySlices')
- .data(data_ready)
- .enter()
- .append('text')
- .text(function(d){ return "grp " + d.data.key})
- .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
- .style("text-anchor", "middle")
- .style("font-size", 17)
+//  var Piedata = {a: 9, b: 20, c:30, d:8, e:12}
+var Piedata = {Happy: 1, Sad: 0, Unblur: 0};
+var today = new Date();
+browser.storage.local.get("cl").then(
+  (data) => {
+    cl = data.cl;
+    for(item of cl.i){
+      var date = new Date(item.d);
+      if(date.getMonth() == today.getMonth()){
+        Piedata.Happy += item.c[0];
+        Piedata.Sad += item.c[1];
+        Piedata.Unblur += item.c[2];
+      }
+    }
+     // set the color scale
+    var Piecolor = d3.scaleOrdinal()
+    .domain(Piedata)
+    .range(['red','yellow','blue'])
+    
+    // Compute the position of each group on the pie:
+    var pie = d3.pie()
+    .value(function(d) {return d.value; })
+    var data_ready = pie(d3.entries(Piedata))
+    // Now I know that group A goes from 0 degrees to x degrees and so on.
+    // shape helper to build arcs:
+    var arcGenerator = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radius)
+    // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+    Piesvg
+    .selectAll('mySlices')
+    .data(data_ready)
+    .enter()
+    .append('path')
+        .attr('d', arcGenerator)
+        .attr('fill', function(d){ return(Piecolor(d.data.key)) })
+        .attr("stroke", "black")
+        .style("stroke-width", "2px")
+        .style("opacity", 0.7)
+    // Now add the annotation. Use the centroid method to get the best coordinates
+    Piesvg
+    .selectAll('mySlices')
+    .data(data_ready)
+    .enter()
+    .append('text')
+    .text(function(d){ if(d.data.value > 0) return d.data.key})
+    .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+    .style("text-anchor", "middle")
+    .style("font-size", 17)
+  }
+)
