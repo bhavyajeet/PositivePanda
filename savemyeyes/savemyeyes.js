@@ -34,7 +34,6 @@
     let today = new Date().toISOString().slice(0, 10);
 
     if (Object.keys(cl).length == 0) {
-      console.log("Entered here\n");
       c = [0, 0, 0]
       c[position]++;
       cl = {
@@ -47,6 +46,7 @@
       }
     }
     else {
+      cl = cl.cl;
       if (cl.i.length > 0) {
         var item = cl.i[cl.i.length - 1];
         if (item.d.localeCompare(today) == 0) {
@@ -76,7 +76,7 @@
       }
     }
 
-    browser.storage.local.set(cl).then(resp => console.log("Done", resp));
+    browser.storage.local.set({"cl": cl}).then(resp => console.log("Done", resp));
   }
 
   function onGot(item) {
