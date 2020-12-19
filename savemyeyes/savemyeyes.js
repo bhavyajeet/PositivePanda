@@ -31,9 +31,9 @@
   const modifyCl = (cl, position) => {
     let today = new Date().toISOString().slice(0, 10);
 
-    console.log(cl);
 
-    if(cl == null){
+    if(Object.keys(cl).length == 0){
+      console.log("Entered here\n");
       c = [0, 0, 0]
       c[position]++;
       cl = {
@@ -74,12 +74,17 @@
         )
       }
     }
+    
+    browser.storage.local.set(cl).then(resp => console.log("Done", resp));
+  }
 
-    browser.storage.local.set({cl});
+  function onGot(item) {
+    console.log("onGot",item);
   }
 
   const addTo = (position) => {
-    browser.storage.local.get("cl").then((item) => modifyCl(item, position));
+    browser.storage.local.get("cl").then(item => modifyCl(item, position));
+    browser.storage.local.get("cl").then(item => onGot(item));
   }
 
   const checkBlurArticle = article => {
@@ -99,7 +104,16 @@
       article.parentNode.style.filter = "blur(5px)";
     }
     else{      
-      article.onclick = addToPositive(1);
+      article.className += " link_click";
+      var anchors = article.getElementsByTagName("a");
+      for(a of anchors){
+        a.addEventListener('click', function(e){
+          console.log("Event listener", e);
+          addTo(0);
+        });
+        console.log(a);
+      }
+      // console.log("Test", article);
     }
   };
 

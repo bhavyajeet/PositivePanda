@@ -23,6 +23,10 @@
       "matches": ["*://news.google.com/*"],
       "js": ["savemyeyes.js"]
     }
+  ],
+
+  "permissions": [
+    "storage"
   ]
 
 }
