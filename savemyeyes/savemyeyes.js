@@ -116,9 +116,40 @@
             break;
         }
 
+
         if (shouldBlurArticle) {
-          // TODO: make blur radius configurable
+          // TODO: make blur radius configurable// Blur
+          
+          // Blur
           article.parentNode.style.filter = "blur(5px)";
+
+          // Add blocking div
+          var div = document.createElement("div");
+          div.style.zIndex = "100";
+          div.style.position = "absolute";
+          div.style.top = "0";
+          div.style.left = "0";
+          div.style.bottom = "0";
+          div.style.right = "0";
+          div.style.cursor = "pointer";
+          div.className = "blocking_div";
+
+
+          div.addEventListener('click', function(e){
+            console.log(e.target);
+            article.parentNode.removeChild(e.target);
+            
+            let subarts = article.parentNode.getElementsByTagName("article");        
+            for(i of subarts) {
+              i.parentNode.style.filter = "";
+              let blocking_divs = i.parentNode.getElementsByClassName("blocking_div");
+              for(j of blocking_divs){
+                console.log(j);
+                j.remove();
+              }
+            }
+          });
+          article.parentNode.appendChild(div);
         } else {
           article.className += " link_click";
           const anchors = article.getElementsByTagName("a");
