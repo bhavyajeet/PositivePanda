@@ -3,7 +3,8 @@ import urllib
 
 
 def link_preview(link):
-    webpage = urllib.request.urlopen(link).read()
+    url = urllib.request.urlopen(link).geturl()
+    webpage = urllib.request.urlopen(url).read()
 
     soup = BeautifulSoup(webpage, features="lxml")
 
