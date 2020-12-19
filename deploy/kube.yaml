@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: positive-panda
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: positive-panda
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - image: rabbitmq
+        imagePullPolicy: Always
+        name: rabbitmq
+        ports:
+        - containerPort: 5672
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: positive-panda
+  labels:
+    app: rabbitmq
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - name: rabbitmq
+    protocol: TCP
+    port: 5672
+    targetPort: 5672
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: positive-panda
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - image: yoogottamk/hack2021:backend
+        imagePullPolicy: Always
+        name: backend
+        ports:
+        - containerPort: 5000
+        env:
+          - name: RABBITMQ_HOST
+            value: rabbitmq
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: positive-panda
+  labels:
+    app: backend
+spec:
+  selector:
+    app: backend
+  ports:
+  - name: backend
+    protocol: TCP
+    port: 5000
+    targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model
+  namespace: positive-panda
+  labels:
+    app: model
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model
+  template:
+    metadata:
+      labels:
+        app: model
+    spec:
+      containers:
+      - image: yoogottamk/hack2021:model
+        imagePullPolicy: Always
+        name: model
+        env:
+          - name: RABBITMQ_HOST
+            value: rabbitmq
+          - name: ARTICLES_API_HOST
+            value: backend
