@@ -147,7 +147,11 @@
                 console.log(j);
                 j.remove();
               }
+              i.addEventListener('click', _e => {
+                addTo(1);
+              });
             }
+            addTo(2);
           });
           article.parentNode.appendChild(div);
         } else {
