@@ -5,6 +5,7 @@ const populateTop5 = items => {
   for (var i = 0; i < items.length; i++) {
     var anchor = document.createElement("a");
     anchor.href = items[i].url;
+    anchor.target = "_blank";
 
     var row = document.createElement("div");
     row.className = "row";
