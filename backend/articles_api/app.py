@@ -20,6 +20,16 @@ app.config["MONGODB_SETTINGS"] = {
     "db": config.MONGO_DB,
 }
 
+# enable CORS
+@app.after_request
+def after_request(response):
+    """
+    allow news.google.com
+    """
+    response.headers["Access-Control-Allow-Origin"] = "https://news.google.com"
+    return response
+
+
 db.init_app(app)
 
 if __name__ == "__main__":

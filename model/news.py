@@ -109,15 +109,21 @@ def score_article(_ch, _method, _properties, body):
         else:
             article_type = ArticleType.BAD
         print(f"Score: {score}, type: {ArticleType(article_type).name}")
-    except:
-        print("Failed to score")
+    except Exception as e:
+        print("Failed to score", e)
         score = None
+        keywords = []
         article_type = ArticleType.ERROR
 
     requests.post(
         f"http://{config.ARTICLES_API_HOST}:{config.ARTICLES_API_PORT}/article",
         headers={"Authorization": config.SECRET},
-        json={"hash": article_hash, "kind": article_type, "score": score, "keywords": keywords},
+        json={
+            "hash": article_hash,
+            "kind": article_type,
+            "score": score,
+            "keywords": keywords,
+        },
     )
 
 
