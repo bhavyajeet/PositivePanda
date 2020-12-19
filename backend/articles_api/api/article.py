@@ -37,6 +37,7 @@ article_response = api.model(
         "publish_date": fields.DateTime(),
         "kind": ArticleTypeConverter(attribute="kind"),
         "score": fields.Float,
+        "keywords": fields.List(fields.String)
     },
 )
 
@@ -44,6 +45,7 @@ post_parser = get_parser.copy()
 post_parser.add_argument("publish_date", type=inputs.date_from_iso8601)
 post_parser.add_argument("kind", type=int, required=True)
 post_parser.add_argument("score", type=float, required=True)
+post_parser.add_argument("keywords", type=list)
 
 post_inputs = api.inherit("PostArticle", article_response, {})
 
@@ -113,7 +115,7 @@ class ArticleInfo(Resource):
 @api.route("/top5")
 class ArticleTop5(Resource):
     def get(self):
-        top5articles = Article.objects.order_by('-score')[:5]
+        top5articles = Article.objects.order_by('-publish_date','-score')[:5]
         article_metadata = []
         for article in top5articles:
             url = f"https://news.google.com/articles/{article.hash}"
