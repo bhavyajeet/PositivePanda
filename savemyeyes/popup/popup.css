@@ -1,7 +1,6 @@
 body {
     background-color: white;
-    max-width: 500px;
-    min-width: 300px;
+    width: 500px;
     padding-bottom: 1rem;
 }
 .row {

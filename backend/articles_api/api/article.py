@@ -113,10 +113,12 @@ class ArticleInfo(Resource):
 @api.route("/top5")
 class ArticleTop5(Resource):
     def get(self):
-        top5articles = Article.objects.order_by('-score')[:5]
+        top5articles = Article.objects.order_by("-score")[:5]
         article_metadata = []
         for article in top5articles:
             url = f"https://news.google.com/articles/{article.hash}"
-            article_metadata.append(link_preview(url))
+            metadata = link_preview(url)
+            metadata["url"] = url
+            article_metadata.append(metadata)
 
-        return jsonify({"items": article_metadata})
+        return jsonify(article_metadata)
